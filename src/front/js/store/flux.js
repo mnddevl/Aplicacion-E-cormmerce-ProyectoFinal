@@ -223,36 +223,33 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
             //AGREGAR AL CARRITO
-            add_to_cart: async ({ producto_id, ...producto }, cantidad, peso, molienda) => {
+            add_to_cart: async (producto, cantidad, molienda) => {
                 const store = getStore();
 
                 try {
                     const headers = {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                     };
 
-                    if (store.token) {
-                        headers.Authorization = `Bearer ${store.token}`;
-                    }
-
-                    console.log("Adding to cart, producto_id:", producto_id);
+                    console.log("Agregando al carrito producto:", producto.id);
 
                     const response = await fetch(`https://crispy-engine-5gv5xpv7qjgqf9rr-3001.app.github.dev/api/carrito/agregar`, {
                         method: 'POST',
                         headers: headers,
                         body: JSON.stringify({
-                            producto_id: producto_id,
+                            producto_id: producto.id,
                             cantidad: cantidad,
+                            molienda: molienda
                         })
                     });
-
 
                     if (response.ok) {
                         const data = await response.json();
                         console.log(data.mensaje);
                     } else {
                         const errorData = await response.json();
-                        console.error('Error al agregar al carrito:', errorData.error || 'Unknown error');
+                        console.error('Error al agregar al carrito:', errorData.error || 'Error desconocido');
                     }
                 } catch (error) {
                     console.error("Error al agregar al carrito:", error);

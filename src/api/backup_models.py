@@ -4,16 +4,11 @@ from sqlalchemy.dialects.postgresql import JSON
 db = SQLAlchemy()
 
 # Muchos a muchos entre CarritoDeCompras y Producto
-class CarritoProducto(db.Model):
-    __tablename__ = 'carrito_producto'
-    id = db.Column(db.Integer, primary_key=True)
-    producto_id = db.Column(db.Integer, db.ForeignKey('productos.producto_id'), nullable=False)
-    producto = db.relationship('Producto', back_populates='carrito_producto')
-    carrito_id = db.Column(db.Integer, db.ForeignKey('carritos.carrito_id'), nullable=False)
-    carrito = db.relationship('CarritoDeCompra', back_populates='productos')
-
-    def __repr__(self):
-        return f'<CarritoProducto {self.carrito_id} - {self.producto_id}>'
+carrito_producto = db.Table('carrito_producto',
+    db.Column('carrito_id', db.Integer, db.ForeignKey('carritos.carrito_id'), primary_key=True),
+    db.Column('producto_id', db.Integer, db.ForeignKey('productos.producto_id'), primary_key=True),
+    db.Column('cantidad', db.Integer, nullable=False, default=1)
+)
 
 class Usuario(db.Model):
     __tablename__ = 'usuario'
@@ -23,13 +18,13 @@ class Usuario(db.Model):
     password = db.Column(db.String(500), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
     es_admin = db.Column(db.Boolean(), nullable=False, default=False)
+    avatar = db.Column(db.String(120), unique=False, nullable=True)
 
     nombre_completo = db.Column(db.String(120), unique=False, nullable=True)
     direccion = db.Column(db.String(120), unique=False, nullable=True)
     codigo_postal = db.Column(db.String(120), unique=False, nullable=True)
     ciudad = db.Column(db.String(120), unique=False, nullable=True)
     telefono = db.Column(db.String(120), unique=False, nullable=True)
-    carrito = db.relationship('CarritoDeCompra', back_populates='usuario')
 
     def __repr__(self):
         return f'<Usuario {self.email}>'
@@ -63,7 +58,8 @@ class Producto(db.Model):
     precio_stripe_id = db.Column(db.String(50), nullable=False)
     producto_stripe_id = db.Column(db.String(50), nullable=False)
 
-    carrito_producto = db.relationship('CarritoProducto', back_populates='producto')
+    carrito_de_compra = db.relationship('CarritoDeCompra', secondary=carrito_producto, lazy='subquery',
+        backref=db.backref('productos_en_carrito', lazy=True))
 
     def __repr__(self):
         return f'<Producto {self.producto_id}>'
@@ -89,8 +85,8 @@ class CarritoDeCompra(db.Model):
     
     carrito_id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False, unique=True)
-    usuario = db.relationship('Usuario', back_populates='carrito')
-    productos = db.relationship('CarritoProducto', back_populates='carrito')
+
+    productos = db.relationship('Producto', secondary=carrito_producto, backref=db.backref('carritos_contenido', lazy=True))
 
     def __repr__(self):
         return f'<CarritoDeCompra {self.carrito_id}>'
@@ -112,9 +108,3 @@ class Pedido(db.Model):
 
     def __repr__(self):
         return f'<Pedido {self.pedido_id}>'
-
-
-
-    
-
-

@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, json, abort, session
-from api.models import db, Usuario, Producto, CarritoDeCompra, Pedido, carrito_producto
+from api.models import db, Usuario, Producto, CarritoDeCompra, Pedido, CarritoProducto
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -218,9 +218,10 @@ def get_producto_by_id(producto_id):
 
 # POST - Agregar al CarritoDeCompras
 @api.route('/carrito/agregar', methods=['POST'])
-@jwt_required(optional=True)
+@jwt_required()
 def agregar_al_carrito():
     data = request.get_json()
+    print(data)
 
     if not data or 'producto_id' not in data or 'cantidad' not in data:
         return jsonify({"error": "Producto ID y cantidad son requeridos"}), 400
@@ -232,28 +233,34 @@ def agregar_al_carrito():
 
     cantidad = data['cantidad']
     current_user = get_jwt_identity()
+    print(current_user)
 
     if current_user:
         # Usuario autenticado
         carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
+        print(carrito)
 
         if not carrito:
             carrito = CarritoDeCompra(usuario_id=current_user)
-            db.session.add(carrito)
+            #db.session.add(carrito)
 
-        carrito_producto_entry = db.session.query(carrito_producto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
-
+        carrito_producto_entry = db.session.query(CarritoProducto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
+        #print(carrito_producto_entry)
         if carrito_producto_entry:
             carrito_producto_entry.cantidad += cantidad
         else:
-            new_entry = carrito_producto.insert().values(carrito_id=carrito.carrito_id, producto_id=producto.producto_id, cantidad=cantidad)
+            new_entry = CarritoProducto.insert().values(carrito_id=carrito.carrito_id, producto_id=producto.producto_id, cantidad=cantidad)
+            #print(new_entry)
             db.session.execute(new_entry)
 
         db.session.commit()
+    
+        return jsonify({"mensaje": "Producto agregado al carrito"}), 200
 
     else:
         # Usuario no logueado, usar sesión
         session_cart = session.get('carrito', [])
+        print(session_cart)
         
         for item in session_cart:
             if item['producto_id'] == producto.producto_id:
@@ -263,9 +270,8 @@ def agregar_al_carrito():
             session_cart.append({"producto_id": producto.producto_id, "cantidad": cantidad})
 
         session['carrito'] = session_cart
-
-    return jsonify({"mensaje": "Producto agregado al carrito"}), 200
-
+        return jsonify({"mensaje": "Producto agregado a la sesion"}), 200
+    
 # DELETE - Eliminar productos del CarritoDeCompras  
 @api.route('/carrito/eliminar', methods=['DELETE'])
 @jwt_required(optional=True)
@@ -285,7 +291,7 @@ def eliminar_del_carrito():
         carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
 
         if carrito:
-            carrito_producto_entry = db.session.query(carrito_producto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
+            carrito_producto_entry = db.session.query(CarritoProducto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
 
             if carrito_producto_entry:
                 if carrito_producto_entry.cantidad > 1:

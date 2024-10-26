@@ -17,14 +17,15 @@ const ProductoUnitario = () => {
     const producto = store.producto;
 
     const total = producto ? producto.precio * cantidad : 0;
+    console.log(producto);
 
     const handleAddToCart = () => {
         console.log("Adding to cart:", producto);
-        if (!producto || !producto.producto_id) {
+        if (!producto || !producto.id) {
             console.error("El ID del producto no esta definido o el producto no ha podido cargarse correctamente.");
             return;
         }
-        actions.add_to_cart(producto, cantidad, peso, molienda);
+        actions.add_to_cart(producto, cantidad, molienda);
     };
 
     return producto ? (
