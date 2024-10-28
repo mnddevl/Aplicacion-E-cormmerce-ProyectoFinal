@@ -216,6 +216,25 @@ def get_producto_by_id(producto_id):
 
     return jsonify({'producto': producto.serialize()}), 200
 
+# GET producto por peso
+@api.route("/productoPorPeso/<int:peso>", methods=["GET"])
+def obtenerProductoPorPeso(peso):
+    productos = Producto.query.filter_by(peso=peso).all()
+    productos_serializados = [producto.serialize() for producto in productos]
+    return jsonify(productos_serializados)
+
+# GET productos filtrados por país y sus variaciones de peso
+@api.route("/productoPorPais/<string:country>", methods=["GET"])
+def obtenerProductosPorPais(country):
+
+    productos = Producto.query.filter_by(region=country).all()
+    
+    if not productos:
+        return jsonify({"error": f"No se encontraron productos para {country}"}), 404
+    productos_serializados = [producto.serialize() for producto in productos]
+
+    return jsonify(productos_serializados), 200
+
 # POST - Agregar al CarritoDeCompras
 @api.route('/carrito/agregar', methods=['POST'])
 @jwt_required()
@@ -242,16 +261,15 @@ def agregar_al_carrito():
 
         if not carrito:
             carrito = CarritoDeCompra(usuario_id=current_user)
-            #db.session.add(carrito)
 
         carrito_producto_entry = db.session.query(CarritoProducto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
-        #print(carrito_producto_entry)
+        
         if carrito_producto_entry:
             carrito_producto_entry.cantidad += cantidad
         else:
-            new_entry = CarritoProducto.insert().values(carrito_id=carrito.carrito_id, producto_id=producto.producto_id, cantidad=cantidad)
-            #print(new_entry)
-            db.session.execute(new_entry)
+            new_entry = CarritoProducto(carrito_id=carrito.carrito_id, producto_id=producto.producto_id)
+            print({"Nueva netrada carrito Producto": new_entry})
+            db.session.add(new_entry)
 
         db.session.commit()
     
@@ -408,21 +426,3 @@ def checkout():
         print(f"Un error a ocurrido en el chackout: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# producto por peso
-@api.route("/productoPorPeso/<int:peso>", methods=["GET"])
-def obtenerProductoPorPeso(peso):
-    productos = Producto.query.filter_by(peso=peso).all()
-    productos_serializados = [producto.serialize() for producto in productos]
-    return jsonify(productos_serializados)
-
-# productos filtrados por país y sus variaciones de peso
-@api.route("/productoPorPais/<string:country>", methods=["GET"])
-def obtenerProductosPorPais(country):
-
-    productos = Producto.query.filter_by(region=country).all()
-    
-    if not productos:
-        return jsonify({"error": f"No se encontraron productos para {country}"}), 404
-    productos_serializados = [producto.serialize() for producto in productos]
-
-    return jsonify(productos_serializados), 200

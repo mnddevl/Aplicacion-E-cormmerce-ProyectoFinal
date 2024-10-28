@@ -49,7 +49,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                         alert('Error al registrar: ' + error.message);
                     });
             },
-            //INICIAR SESION USUARIO
+            //LOGIN USUARIO
             loginUsuario: (email, password, onSuccess, onError) => {
                 fetch(`${process.env.BACKEND_URL}/api/login`, {
                     method: 'POST',
@@ -184,6 +184,21 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error en get_producto_by_id:", error);
                 }
             },
+            //GET PRODUCTOS POR PAIS
+            getProductosPorPais: async (country) => {
+                try {
+                    const response = await fetch(`/api/productoPorPais/${country}`);
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        setStore({ productos: data });
+                    } else {
+                        console.error("Error al obtener productos:", data.error);
+                    }
+                } catch (error) {
+                    console.error("Error al conectar con la API:", error);
+                }
+            },
             //GET USUARIO
             getUsuario: async () => {
                 const token = sessionStorage.getItem('token');
@@ -206,22 +221,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.log(error)
                 }
-            },
-            //GET PRODUCTOS POR PAIS
-            getProductosPorPais: async (country) => {
-                try {
-                    const response = await fetch(`/api/productoPorPais/${country}`);
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        setStore({ productos: data });
-                    } else {
-                        console.error("Error al obtener productos:", data.error);
-                    }
-                } catch (error) {
-                    console.error("Error al conectar con la API:", error);
-                }
-            },
+            },           
             //AGREGAR AL CARRITO
             add_to_cart: async (producto, cantidad, molienda) => {
                 const store = getStore();
