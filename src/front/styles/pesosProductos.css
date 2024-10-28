@@ -98,4 +98,26 @@
   }
 }
 
+@media (min-width: 800px) and (max-width: 1025px) {
+  .producto-container {
+    grid-template-columns: repeat(2, 1fr); /* Mostrar dos productos por fila */
+    gap: 15px; /* Ajustar el espacio entre productos */
+    padding: 15px; /* Reducir el padding para pantallas más pequeñas */
+  }
 
+  .product-card {
+    padding: 12px; /* Reducir el padding del producto */
+  }
+
+  .product-image {
+    height: 140px; /* Ajustar la altura de la imagen */
+  }
+
+  .product-name {
+    font-size: 1.1rem; /* Ajustar el tamaño del texto del nombre del producto */
+  }
+
+  .peso-producto {
+    padding-top: 50px; /* Ajustar el padding superior para el peso */
+  }
+}

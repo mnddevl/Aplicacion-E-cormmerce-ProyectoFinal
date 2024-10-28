@@ -240,9 +240,8 @@ def obtenerProductosPorPais(country):
 @jwt_required()
 def agregar_al_carrito():
     data = request.get_json()
-    print(data)
-
-    if not data or 'producto_id' not in data or 'cantidad' not in data:
+    
+    if not data or not 'producto_id' in data or not 'cantidad' in data:
         return jsonify({"error": "Producto ID y cantidad son requeridos"}), 400
 
     producto = Producto.query.filter_by(producto_id=data['producto_id']).first()
@@ -252,8 +251,6 @@ def agregar_al_carrito():
 
     cantidad = data['cantidad']
     current_user = get_jwt_identity()
-    print(current_user)
-
     if current_user:
         # Usuario autenticado
         carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
@@ -261,16 +258,11 @@ def agregar_al_carrito():
 
         if not carrito:
             carrito = CarritoDeCompra(usuario_id=current_user)
-
-        carrito_producto_entry = db.session.query(CarritoProducto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
+            db.session.add(carrito)
         
-        if carrito_producto_entry:
-            carrito_producto_entry.cantidad += cantidad
-        else:
-            new_entry = CarritoProducto(carrito_id=carrito.carrito_id, producto_id=producto.producto_id)
-            print({"Nueva netrada carrito Producto": new_entry})
-            db.session.add(new_entry)
-
+        # Agregar o actualizar producto en el carrito del usuario
+        carrito.productos.append(producto)
+        carrito.cantidad = cantidad
         db.session.commit()
     
         return jsonify({"mensaje": "Producto agregado al carrito"}), 200
@@ -278,15 +270,7 @@ def agregar_al_carrito():
     else:
         # Usuario no logueado, usar sesión
         session_cart = session.get('carrito', [])
-        print(session_cart)
-        
-        for item in session_cart:
-            if item['producto_id'] == producto.producto_id:
-                item['cantidad'] += cantidad
-                break
-        else:
-            session_cart.append({"producto_id": producto.producto_id, "cantidad": cantidad})
-
+        session_cart.append({"producto_id": producto.producto_id, "cantidad": cantidad})
         session['carrito'] = session_cart
         return jsonify({"mensaje": "Producto agregado a la sesion"}), 200
     
@@ -308,16 +292,9 @@ def eliminar_del_carrito():
     if current_user:
         carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
 
-        if carrito:
-            carrito_producto_entry = db.session.query(CarritoProducto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
-
-            if carrito_producto_entry:
-                if carrito_producto_entry.cantidad > 1:
-                    carrito_producto_entry.cantidad -= 1  
-                else:
-                    db.session.delete(carrito_producto_entry)
-
-                db.session.commit()
+        if carrito and producto in carrito.productos:
+            carrito.productos.remove(producto)
+            db.session.commit()
 
     else:
         session_cart = session.get('carrito', [])
