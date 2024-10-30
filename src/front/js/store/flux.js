@@ -60,23 +60,23 @@ const getState = ({ getStore, getActions, setStore }) => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.token) {
-                        console.log(data)
                         sessionStorage.setItem('token', data.token);
                         sessionStorage.setItem('user', JSON.stringify(data.user));
-                        console.log("Inicio de sesión exitoso");
-
-                    const store = getStore();
-
-                    setStore({ ...store, usuario: data.user })
-                    if (onSuccess) onSuccess();
+                        setStore({ usuario: data.user, isAuthenticated: true }); // Actualizar isAuthenticated
+                        if (onSuccess) onSuccess();
                     } else {
                         const errorMessage = data.error || "Error desconocido al iniciar sesión.";
-                    if (onError) onError(errorMessage);
+                        if (onError) onError(errorMessage);
                     }
                 })
                 .catch(error => {
                     if (onError) onError('Error de conexión. Inténtalo de nuevo.');
                 });
+            },
+            logoutUsuario: () => {
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                setStore({ usuario: [], isAuthenticated: false }); // Actualizar isAuthenticated
             },
             //UPDATE USUARIO
             update_usuario: async () => {
