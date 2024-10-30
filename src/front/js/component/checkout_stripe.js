@@ -3,10 +3,12 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import {Context} from '../store/appContext';
 
 export const CheckoutForm = () => {
+    const { store, actions } = useContext(Context);
     const stripe = useStripe();
     const elements = useElements();
     const [clientSecret, setClientSecret] = useState('');
     const [loading, setLoading] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('card');
 
     const carritoTotal = store.carrito.reduce((total, item) => total + item.price * item.quantity, 0);
 
@@ -35,7 +37,7 @@ export const CheckoutForm = () => {
 
       let result;
 
-      if (payment_method === 'card') {
+      if (paymentMethod === 'card') {
         result = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
                 card: elements.getElement(CardElement),
@@ -95,7 +97,7 @@ export const CheckoutForm = () => {
             )}
             
             <button type="submit" disabled={!stripe || loading}>
-                Pagar {cartTotal} EUR
+                Pagar {carritoTotal} EUR
             </button>
         </form>
     </div>
