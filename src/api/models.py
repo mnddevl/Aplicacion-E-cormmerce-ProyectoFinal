@@ -11,6 +11,7 @@ class CarritoProducto(db.Model):
     producto = db.relationship('Producto', back_populates='carrito_producto')
     carrito_id = db.Column(db.Integer, db.ForeignKey('carritos.carrito_id'), nullable=False)
     carrito = db.relationship('CarritoDeCompra', back_populates='productos')
+    cantidad = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return f'<CarritoProducto {self.carrito_id} - {self.producto_id}>'
