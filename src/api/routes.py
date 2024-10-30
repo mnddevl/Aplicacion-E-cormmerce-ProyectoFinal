@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, json, abort, session
-from api.models import db, Usuario, Producto, CarritoDeCompra, Pedido, carrito_producto
+from api.models import db, Usuario, Producto, CarritoDeCompra, Pedido, CarritoProducto
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -194,7 +194,7 @@ def init_productos():
     db.session.commit()
     return jsonify({"mensaje": "Productos cargados con exito"}), 201
 
-# GET Productos (todos)
+# GET - Productos (todos)
 @api.route('/productos', methods=['GET'])
 def get_productos():
     peso_seleccionado = request.args.get('peso', default=250, type=int)
@@ -206,7 +206,7 @@ def get_productos():
 
     return jsonify({'productos':[producto.serialize() for producto in productos]}), 200
 
-# GET Producto por ID
+# GET - Producto por ID
 @api.route('/producto/<int:producto_id>', methods=['GET'])
 def get_producto_by_id(producto_id):
     producto = Producto.query.filter_by(producto_id=producto_id).first()
@@ -216,114 +216,113 @@ def get_producto_by_id(producto_id):
 
     return jsonify({'producto': producto.serialize()}), 200
 
+# GET - Producto por peso
+@api.route("/productoPorPeso/<int:peso>", methods=["GET"])
+def obtenerProductoPorPeso(peso):
+    productos = Producto.query.filter_by(peso=peso).all()
+    productos_serializados = [producto.serialize() for producto in productos]
+    return jsonify(productos_serializados)
+
+# GET - Productos por país
+@api.route("/productoPorPais/<string:country>", methods=["GET"])
+def obtenerProductosPorPais(country):
+
+    productos = Producto.query.filter_by(region=country).all()
+    
+    if not productos:
+        return jsonify({"error": f"No se encontraron productos para {country}"}), 404
+    productos_serializados = [producto.serialize() for producto in productos]
+
+    return jsonify(productos_serializados), 200
+
 # POST - Agregar al CarritoDeCompras
 @api.route('/carrito/agregar', methods=['POST'])
-@jwt_required(optional=True)
+@jwt_required()
 def agregar_al_carrito():
     data = request.get_json()
-
-    if not data or 'producto_id' not in data or 'cantidad' not in data:
+    
+    if not data or not 'producto_id' in data or not 'cantidad' in data:
         return jsonify({"error": "Producto ID y cantidad son requeridos"}), 400
 
     producto = Producto.query.filter_by(producto_id=data['producto_id']).first()
-
     if not producto:
         return jsonify({"error": "Producto no encontrado"}), 404
 
     cantidad = data['cantidad']
     current_user = get_jwt_identity()
 
-    if current_user:
-        # Usuario autenticado
-        carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
+    # Obtener o crear el carrito del usuario autenticado
+    carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
+    if not carrito:
+        carrito = CarritoDeCompra(usuario_id=current_user)
+        db.session.add(carrito)
 
-        if not carrito:
-            carrito = CarritoDeCompra(usuario_id=current_user)
-            db.session.add(carrito)
-
-        carrito_producto_entry = db.session.query(carrito_producto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
-
-        if carrito_producto_entry:
-            carrito_producto_entry.cantidad += cantidad
-        else:
-            new_entry = carrito_producto.insert().values(carrito_id=carrito.carrito_id, producto_id=producto.producto_id, cantidad=cantidad)
-            db.session.execute(new_entry)
-
-        db.session.commit()
-
+    item_repetido = CarritoProducto.query.filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
+    if item_repetido:
+        item_repetido.cantidad += cantidad
     else:
-        # Usuario no logueado, usar sesión
-        session_cart = session.get('carrito', [])
-        
-        for item in session_cart:
-            if item['producto_id'] == producto.producto_id:
-                item['cantidad'] += cantidad
-                break
-        else:
-            session_cart.append({"producto_id": producto.producto_id, "cantidad": cantidad})
+        new_item = CarritoProducto(carrito_id=carrito.carrito_id, producto_id=producto.producto_id, cantidad=cantidad)
+        db.session.add(new_item)
 
-        session['carrito'] = session_cart
-
+    db.session.commit()
+    print(f"Nuevo carrito creado para usuario ID {current_user}")       
+    
     return jsonify({"mensaje": "Producto agregado al carrito"}), 200
 
+# GET - Obtener los productos en el CarritoDeCompras del usuario actual
+@api.route('/carrito/productos', methods=['GET'])
+@jwt_required() 
+def obtener_productos_carrito():
+    current_user = get_jwt_identity()
+
+    # Buscar el carrito del usuario autenticado
+    carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
+
+    if not carrito or not carrito.productos:
+        return jsonify({"mensaje": "El carrito está vacío"}), 200
+
+    # Obtener los productos en el carrito
+    productos_en_carrito = [
+        {
+            "producto": item.producto.serialize(),
+            "cantidad": item.cantidad 
+        }
+        for item in carrito.productos
+    ]
+
+    return jsonify({"productos": productos_en_carrito}), 200
+    
 # DELETE - Eliminar productos del CarritoDeCompras  
 @api.route('/carrito/eliminar', methods=['DELETE'])
-@jwt_required(optional=True)
+@jwt_required() 
 def eliminar_del_carrito():
     data = request.get_json()
 
     if not data or 'producto_id' not in data:
         return jsonify({"error": "Producto ID es requerido"}), 400
 
+    # Verifica si el producto existe
     producto = Producto.query.filter_by(producto_id=data['producto_id']).first()
-
     if not producto:
         return jsonify({"error": "Producto no encontrado"}), 404
 
-    current_user = get_jwt_identity()
-    if current_user:
-        carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
-
-        if carrito:
-            carrito_producto_entry = db.session.query(carrito_producto).filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
-
-            if carrito_producto_entry:
-                if carrito_producto_entry.cantidad > 1:
-                    carrito_producto_entry.cantidad -= 1  
-                else:
-                    db.session.delete(carrito_producto_entry)
-
-                db.session.commit()
-
-    else:
-        session_cart = session.get('carrito', [])
-        session_cart = [
-            item for item in session_cart 
-            if item['producto_id'] != producto.producto_id or item['cantidad'] > 1
-        ]
-        session['carrito'] = session_cart
-
-    return jsonify({"mensaje": "Producto eliminado del carrito"}), 200
-
-# DELETE - Vaciar CarritoDeCompras  
-@api.route('/carrito/limpiar', methods=['DELETE'])
-@jwt_required(optional=True)
-def limpiar_carrito():
+    # Obtener el usuario autenticado
     current_user = get_jwt_identity()
 
-    if current_user:
-        # Usuario autenticado
-        carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
-
-        if carrito:
-            carrito.productos.clear()
+    # Buscar el carrito del usuario autenticado
+    carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
+    if carrito:
+        # Buscar el CarritoProducto correspondiente
+        carrito_producto = CarritoProducto.query.filter_by(carrito_id=carrito.carrito_id, producto_id=producto.producto_id).first()
+        
+        if carrito_producto:
+            db.session.delete(carrito_producto) 
             db.session.commit()
+            return jsonify({"mensaje": "Producto eliminado del carrito"}), 200
+        else:
+            return jsonify({"error": "El producto no se encuentra en el carrito"}), 404
 
-    else:
-        # Usuario no autenticado, vaciar carrito de la sesión
-        session.pop('carrito', None)
-
-    return jsonify({"mensaje": "Carrito vacio"}), 200
+    return jsonify({"error": "Carrito no encontrado"}), 404
 
 # POST - Checkout
 @api.route('/checkout', methods=['POST'])
@@ -402,21 +401,3 @@ def checkout():
         print(f"Un error a ocurrido en el chackout: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# producto por peso
-@api.route("/productoPorPeso/<int:peso>", methods=["GET"])
-def obtenerProductoPorPeso(peso):
-    productos = Producto.query.filter_by(peso=peso).all()
-    productos_serializados = [producto.serialize() for producto in productos]
-    return jsonify(productos_serializados)
-
-# productos filtrados por país y sus variaciones de peso
-@api.route("/productoPorPais/<string:country>", methods=["GET"])
-def obtenerProductosPorPais(country):
-
-    productos = Producto.query.filter_by(region=country).all()
-    
-    if not productos:
-        return jsonify({"error": f"No se encontraron productos para {country}"}), 404
-    productos_serializados = [producto.serialize() for producto in productos]
-
-    return jsonify(productos_serializados), 200

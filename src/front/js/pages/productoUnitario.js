@@ -17,14 +17,24 @@ const ProductoUnitario = () => {
     const producto = store.producto;
 
     const total = producto ? producto.precio * cantidad : 0;
+    console.log(producto);
 
     const handleAddToCart = () => {
+
+        console.log("Producto:", producto);
+        
+        const selectedProduct = {
+            id: producto.id, 
+            cantidad: cantidad,              
+        };
         console.log("Añadiendo al carrito:", producto);
-        if (!producto || !producto_id) {
-            console.error("El ID del producto no esta definido o el producto no ha podido cargarse correctamente.");
+
+        if (!selectedProduct.id) {
+            console.error("El ID del producto no está definido o el producto no ha podido cargarse correctamente.");
             return;
         }
-        actions.add_to_cart(producto_id, cantidad);
+
+        actions.addToCart(selectedProduct);  
     };
 
     return producto ? (
@@ -71,7 +81,7 @@ const ProductoUnitario = () => {
 
                     <button
                         className="add-to-cart"
-                        onClick={handleAddToCart}
+                        onClick={() => handleAddToCart()}
                         disabled={!peso || !molienda}
                     >
                         Agregar al carrito – Total: €{total.toFixed(2)}

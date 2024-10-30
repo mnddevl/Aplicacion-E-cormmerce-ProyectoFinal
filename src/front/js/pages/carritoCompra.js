@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import '../../styles/carritoCompra.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { store, actions, subscribe, unsubscribe } from '../store/flux'; 
+import { Context } from '../store/appContext';
 
 const CarritoCompra = () => {
     const [loading, setLoading] = useState(true);
     const [productos, setProductos] = useState([]);
     const navigate = useNavigate();
+    const { store, actions } = useContext(Context);
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -20,11 +21,6 @@ const CarritoCompra = () => {
             setProductos([...store.getStore().productos]);
         };  
         
-        actions.subscribe(handleStoreChange);
-         
-        return () => {
-            actions.unsubscribe(handleStoreChange); 
-        };
     }, []);
 
     const handleQuantityChange = (id, quantity) => {
