@@ -230,13 +230,18 @@ const getState = ({ getStore, getActions, setStore }) => {
                 };
             
                 try {
-                    const response = await fetch('https://crispy-engine-5gv5xpv7qjgqf9rr-3001.app.github.dev/api/carrito/agregar', {
+                    const response = await fetch('https://solitary-fishsticks-g4x9gvw7j6w6fw774-3001.app.github.dev/api/carrito/agregar'
+, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${userToken}`,  
                         },
-                        body: JSON.stringify(productData),
+                        //body: JSON.stringify(productData),
+                        body: JSON.stringify({
+                            producto_id: selectedProduct.id,
+                            cantidad: selectedProduct.cantidad
+                        }),
                     });
             
                     const data = await response.json();
