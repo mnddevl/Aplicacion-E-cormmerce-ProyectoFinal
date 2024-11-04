@@ -62,7 +62,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     if (data.token) {
                         sessionStorage.setItem('token', data.token);
                         sessionStorage.setItem('user', JSON.stringify(data.user));
-                        setStore({ usuario: data.user, isAuthenticated: true }); // Actualizar isAuthenticated
+                        setStore({ usuario: data.user, isAuthenticated: true }); 
                         if (onSuccess) onSuccess();
                     } else {
                         const errorMessage = data.error || "Error desconocido al iniciar sesión.";
@@ -76,7 +76,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             logoutUsuario: () => {
                 sessionStorage.removeItem('token');
                 sessionStorage.removeItem('user');
-                setStore({ usuario: [], isAuthenticated: false }); // Actualizar isAuthenticated
+                setStore({ usuario: [], isAuthenticated: false }); 
             },
             //UPDATE USUARIO
             update_usuario: async () => {
