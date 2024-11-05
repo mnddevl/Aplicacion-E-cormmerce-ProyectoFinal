@@ -25,36 +25,24 @@ const CarritoCompra = () => {
     useEffect(() => {
         const fetchCartItems = async () => {
             await actions.get_productos(); 
+            setProductos([...store.carrito]); 
             setLoading(false);
         };
-    
         fetchCartItems();
-    
-        const handleStoreChange = () => {
-            setProductos([...store.getStore().productos]);
-        };  
-        
-    }, []);
+    }, [actions]); // Ejecuta solo una vez al cargar el componente
+
+    useEffect(() => {
+        setProductos([...store.carrito]); 
+    }, [store.carrito]);
 
     const handleQuantityChange = (id, quantity) => {
-        actions.updateItemQuantity(id, quantity); 
+        actions.updateItemQuantity(id, quantity);
     };
 
     const calculateTotal = () => {
         return productos.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2);
     };
 
-    // const handleCheckOutSession = async () => {
-    //     const clientSecret = await actions.handleCheckoutSession();
-    //     if (clientSecret) {
-    //         const stripe = await stripePromise;
-    //         const { error } = await stripe.redirectToCheckout({
-    //             sessionId: clientSecret,
-    //         });
-    //         if (error) console.error("Error en el checkout de Stripe:", error.message);
-    //     }
-    // };
-   
     return (
         <div className="carritoCompra">
             {loading ? (
