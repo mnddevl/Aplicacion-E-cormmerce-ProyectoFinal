@@ -5,6 +5,7 @@ import '../../styles/productosPorPais.css';
 
 function ProductosPorPais() {
   const { country } = useParams();
+  const { peso } = useParams();
   const [productos, setProductos] = useState([])
     const obtenerProductos = async ()=> {
         try {
@@ -29,8 +30,8 @@ function ProductosPorPais() {
           productos.map((producto) => (
             <div key={producto.producto_id} className="product-card">
               <img src={producto.imagen_url} alt={producto.nombre} className="product-image" />
-             <Link to={`/producto/${producto.id}`}> {producto.nombre} </Link>
-              <p className="product-origin">{country}</p>
+             <Link to={`/producto/${producto.id}`} className="product-nombre"> {producto.nombre} </Link>
+              <p className="product-peso">{peso}</p>
               <p className="product-price">€{producto.precio}</p>
             </div>
           ))

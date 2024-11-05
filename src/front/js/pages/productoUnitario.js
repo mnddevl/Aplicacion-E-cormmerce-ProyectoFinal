@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import '../../styles/productoUnitario.css';
 
 const ProductoUnitario = () => {
@@ -9,6 +9,7 @@ const ProductoUnitario = () => {
     const [peso, setPeso] = useState(250);
     const [molienda, setMolienda] = useState("");
     const [cantidad, setCantidad] = useState(1);
+    const navigate = useNavigate();
     
     useEffect(() => {
         actions.get_producto_by_id(producto_id);
@@ -20,6 +21,21 @@ const ProductoUnitario = () => {
     console.log(producto);
 
     const handleAddToCart = () => {
+        const token = sessionStorage.getItem("token")
+        if (!token) {
+            swal({
+                title: "Error",
+                text: "Para agregar al carrito registrate o inicia sesión.",
+                icon: "error",
+                button: {
+                    text: "Aceptar",
+                    className: "my-blue-button" 
+                },
+                timer: 10000 ,
+                className: "-alert"
+            });
+            navigate("/")
+        }
 
         console.log("Producto:", producto);
         
