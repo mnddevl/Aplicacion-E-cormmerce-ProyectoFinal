@@ -24,12 +24,12 @@ const CarritoCompra = () => {
 
     useEffect(() => {
         const fetchCartItems = async () => {
-            await actions.get_productos(); 
+            await actions.get_carrito(); 
             setProductos([...store.carrito]); 
             setLoading(false);
         };
         fetchCartItems();
-    }, [actions]); // Ejecuta solo una vez al cargar el componente
+    }, []); 
 
     useEffect(() => {
         setProductos([...store.carrito]); 
@@ -40,7 +40,7 @@ const CarritoCompra = () => {
     };
 
     const calculateTotal = () => {
-        return productos.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2);
+        return productos.reduce((total, item) => total + item.producto.precio * item.cantidad, 0).toFixed(2);
     };
 
     return (
@@ -58,19 +58,19 @@ const CarritoCompra = () => {
                             </div>
                         ) : (
                             productos.map(item => (
-                                <div className="carrito-item" key={item.producto_id}>
+                                <div className="carrito-item" key={item.producto.id}>
                                     <div className="item-details">
-                                        <h3>{item.nombre}</h3>
-                                        <p>{item.descripcion}</p>
-                                        <p>{item.region}</p>
+                                        <h3>{item.producto.nombre}</h3>
+                                        <p>{item.producto.descripcion}</p>
+                                        <p>{item.producto.region}</p>
                                     </div>
                                     <div className="item-controls">
-                                        <button onClick={() => handleQuantityChange(item.producto_id, item.quantity - 1)}>-</button>
+                                        <button onClick={() => handleQuantityChange(item.producto.id, item.quantity - 1)}>-</button>
                                         <span>{item.quantity}</span>
-                                        <button onClick={() => handleQuantityChange(item.producto_id, item.quantity + 1)}>+</button>
+                                        <button onClick={() => handleQuantityChange(item.producto.id, item.quantity + 1)}>+</button>
                                     </div>
                                     <div className="item-price">
-                                        <p>{(item.precio * item.quantity).toFixed(2)}€</p>
+                                        <p>{(item.producto.precio * item.cantidad).toFixed(2)}€</p>
                                     </div>
                                 </div>
                             ))
@@ -86,9 +86,9 @@ const CarritoCompra = () => {
                         ) : (
                             <>
                                 {productos.map(item => (
-                                    <div className="summary-item" key={item.producto_id}>
-                                        <p>{item.quantity}x {item.nombre}</p>
-                                        <p>{(item.precio * item.quantity).toFixed(2)}€</p>
+                                    <div className="summary-item" key={item.producto.id}>
+                                        <p>{item.cantidad}x {item.producto.nombre}</p>
+                                        <p>{(item.producto.precio * item.cantidad).toFixed(2)}€</p>
                                     </div>
                                 ))}
                                 <div className="summary-total">

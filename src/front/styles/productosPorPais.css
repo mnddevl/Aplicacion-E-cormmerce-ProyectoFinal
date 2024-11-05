@@ -58,7 +58,7 @@
     color: #a19359;
   }
   
-  .product-origin,
+  .product-peso,
   .product-price {
     font-size: 0.9rem;
     color: #556967;
@@ -68,4 +68,10 @@
     font-weight: bold;
     margin-top: 10px;
   }
+
+  .product-nombre {
+    color:#556967;
+  }
+
+  
   

@@ -155,7 +155,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             get_productos: async () => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/productos`);
-                    console.log(response);
+                     console.log(response);
                     if (response.ok) {
                         const data = await response.json();
                         const store = getStore();
@@ -253,32 +253,30 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error adding to cart:", error);
                 }
-            },
-            //CHECKOUT SESSION
-            handleCheckoutSession: async () => {
+            },  
+            get_carrito: async () => {
+                const token = sessionStorage.getItem("token")
                 try {
-                    const totalAmount = store.productos.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2) * 100; 
-                    const response = await fetch('https://crispy-engine-5gv5xpv7qjgqf9rr-3001.app.github.dev/api/checkout', {
-                        method: 'POST',
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/carrito/productos`,{
+                        method: "GET",
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`, 
-                        },
-                        body: JSON.stringify({
-                            amount: totalAmount, 
-                            currency: 'eur' 
-                        })
-                    });
-                    
-                    if (!response.ok) throw new Error("Error al crear la sesión de pago");
-                    
-                    const data = await response.json();
-                    return data.clientSecret; 
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    } 
+                    );
+                    console.log(response);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const store = getStore();
+                        setStore({ ...store, carrito: data.productos });
+                    } else {
+                        console.error("Error al obtener los productos:", response.statusText);
+                    }
                 } catch (error) {
-                    console.error("Error:", error);
-                    return null;
+                    console.error("Error en get_productos:", error);
                 }
-            },            
+            }         
         }
     };
 };
