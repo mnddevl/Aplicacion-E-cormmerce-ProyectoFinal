@@ -19,6 +19,7 @@ import LoginView from "./pages/loginView";
 import PesosProductos from "./pages/pesosProductos";
 import { ProductoPorPeso } from "./pages/productoPorPeso";
 import ProductosPorPais from "./pages/productosPorPais";
+import Payment from "./pages/payment";
 
  
 //create your first component
@@ -48,6 +49,7 @@ const Layout = () => {
                     <Route path="/pesosProductos" element={<PesosProductos />} />
                     <Route path="/productoPorPeso/:peso" element={<ProductoPorPeso />} />
                     <Route path="/productoPorPais/:country" element={<ProductosPorPais />} />
+                    <Route path="/checkoutSession" element={ <Payment />}></Route>
                     <Route element={<h1>Not found!</h1>} />
                 </Routes>
                 <Footer />
