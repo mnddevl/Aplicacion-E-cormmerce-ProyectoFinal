@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from "react";
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardElement, useStripe, useElements, IbanElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
 import {Context} from '../store/appContext';
 
 export const CheckoutForm = () => {
@@ -54,7 +54,7 @@ export const CheckoutForm = () => {
         });
       } else if (paymentMethod === 'google_pay') {
         const paymentRequest = stripe.paymentRequest({
-            country: 'FR', 
+            country: 'ES', 
             currency: 'eur',
             total: {
                 label: 'Total',
