@@ -155,7 +155,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             get_productos: async () => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/productos`);
-                    console.log(response);
+                     console.log(response);
                     if (response.ok) {
                         const data = await response.json();
                         const store = getStore();
@@ -253,7 +253,30 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error adding to cart:", error);
                 }
-            },           
+            },  
+            get_carrito: async () => {
+                const token = sessionStorage.getItem("token")
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/carrito/productos`,{
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    } 
+                    );
+                    console.log(response);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const store = getStore();
+                        setStore({ ...store, carrito: data.productos });
+                    } else {
+                        console.error("Error al obtener los productos:", response.statusText);
+                    }
+                } catch (error) {
+                    console.error("Error en get_productos:", error);
+                }
+            }         
         }
     };
 };
