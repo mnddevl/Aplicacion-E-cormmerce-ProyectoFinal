@@ -267,7 +267,7 @@ def agregar_al_carrito():
     db.session.commit()
     print(f"Nuevo carrito creado para usuario ID {current_user}")       
     
-    return jsonify({"mensaje": "Producto agregado al carrito", "carrito_id": item_repetido.carrito_id}), 200
+    return jsonify({"mensaje": "Producto agregado al carrito", "carrito_id": carrito.carrito_id}), 200
 
 # GET - Obtener los productos en el CarritoDeCompras del usuario actual
 @api.route('/carrito/productos', methods=['GET'])
