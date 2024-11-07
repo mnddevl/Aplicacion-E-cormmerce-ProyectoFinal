@@ -43,6 +43,10 @@ const CarritoCompra = () => {
         return productos.reduce((total, item) => total + item.producto.precio * item.cantidad, 0).toFixed(2);
     };
 
+    useEffect(() => {
+        console.log(productos)
+    }, [productos]);
+
     return (
         <div className="carritoCompra">
             {loading ? (

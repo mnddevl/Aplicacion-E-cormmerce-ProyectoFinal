@@ -267,7 +267,7 @@ def agregar_al_carrito():
     db.session.commit()
     print(f"Nuevo carrito creado para usuario ID {current_user}")       
     
-    return jsonify({"mensaje": "Producto agregado al carrito"}), 200
+    return jsonify({"mensaje": "Producto agregado al carrito", "carrito_id": item_repetido.carrito_id}), 200
 
 # GET - Obtener los productos en el CarritoDeCompras del usuario actual
 @api.route('/carrito/productos', methods=['GET'])
@@ -409,4 +409,22 @@ def create_payment():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@api.route('/carrito/update_quantity', methods=['PUT'])
+def update_quantity():
+    try:
+        data = request.json
+        carrito_id = data.get('carrito_id')
+        producto_id = data.get('producto_id')
+        nueva_cantidad = data.get('cantidad')
+        if not carrito_id or not producto_id or nueva_cantidad is None:
+            return jsonify({"error": "Falta carrito_id, producto_id, o cantidad"}), 400
+        item = CarritoProducto.query.filter_by(carrito_id=carrito_id, producto_id=producto_id).first()
+        if not item:
+            return jsonify({"error": "El item no se encuentra en el carrito"}), 404
+        item.cantidad = nueva_cantidad
+        db.session.commit()
+        return jsonify({"message": "Cantidad actualizada con exito", "carrito_producto": item.cantidad}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
