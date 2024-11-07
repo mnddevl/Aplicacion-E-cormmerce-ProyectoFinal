@@ -5,7 +5,7 @@ import '../../styles/productosPorPais.css';
 
 function ProductosPorPais() {
   const { country } = useParams();
-  const { peso } = useParams();
+  const { peso } = useParams(); // no se si esta bien
   const [productos, setProductos] = useState([])
     const obtenerProductos = async ()=> {
         try {
