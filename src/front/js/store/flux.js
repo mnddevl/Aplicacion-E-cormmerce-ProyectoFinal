@@ -288,7 +288,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                         producto_id: productoId,
                         cantidad: newCantidad,
                     };
-                    const response = await fetch('/carrito/update_quantity', {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/carrito/update_quantity`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
