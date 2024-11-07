@@ -10,18 +10,6 @@ const CarritoCompra = () => {
     const { store, actions } = useContext(Context);
 
 
-    // useEffect(() => {
-    //     // Create PaymentIntent as soon as the page loads
-    //     fetch('https://potential-fiesta-q57vjgxrwqwh4j66-3001.app.github.dev/api/create-payment', {
-    //       method: 'POST',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       //la cantidad ha pagar esta puesta fija, pero puede recibir un objeto desde el contexto
-    //       body: JSON.stringify({ amount: 1000, currency: 'usd' }) // Amount in cents
-    //     })
-    //       .then((res) => res.json())
-    //       .then((data) => setClientSecret(data.clientSecret));
-    //   }, []);
-
     useEffect(() => {
         const fetchCartItems = async () => {
             await actions.get_carrito(); 

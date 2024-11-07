@@ -10,20 +10,24 @@ export const CheckoutForm = () => {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('card');
 
-    const carritoTotal = store.carrito.reduce((total, item) => total + item.price * item.quantity, 0);
+    const carritoTotal = (store.carrito.reduce((total, item) => total + item.producto.precio * item.cantidad, 0)).toFixed(2);
 
+    useEffect(() => {
+        console.log( clientSecret);
+    }, [clientSecret]);
 
     useEffect(() => {
 
         //Crea un nuevo pago en el backend
-        fetch(process.env.BACKEND_URL + '/api/crear-pago', {
+        const createPayment = () => {fetch(process.env.BACKEND_URL + '/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: carritoTotal * 100, currency: 'eur' }) 
         })
           .then((res) => res.json())
-          .then((data) => setClientSecret(data.clientSecret)); 
-      }, [carritoTotal]);
+          .then((data) => setClientSecret(data.clientSecret)); };
+          createPayment();
+      }, []);
 
 
     const handleSubmit = async (event) => {
@@ -64,7 +68,7 @@ export const CheckoutForm = () => {
             requestPayerEmail: true,
         });
 
-        result = await paymentRequest.show();
+        // result = paymentRequest.show();
       }
 
     setLoading(false);

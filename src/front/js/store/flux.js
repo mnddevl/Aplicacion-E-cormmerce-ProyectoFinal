@@ -254,6 +254,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error adding to cart:", error);
                 }
             },  
+            //GET CARRITO
             get_carrito: async () => {
                 const token = sessionStorage.getItem("token")
                 try {

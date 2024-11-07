@@ -324,73 +324,7 @@ def eliminar_del_carrito():
 
     return jsonify({"error": "Carrito no encontrado"}), 404
 
-# POST - Checkout
-# @api.route('/checkout', methods=['POST'])
-# @jwt_required()
-# def checkout():
-#     current_user_id = get_jwt_identity()
-#     print(f"Current User ID: {current_user_id}")
-
-#     carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user_id).first()
-#     items_en_carrito = request.get_json().get('items', [])
-#     print(f"Articulos en carrito: {items_en_carrito}")
-    
-#     if not carrito:
-#         return jsonify({'error': 'No se ha encontrado un carrito de compras para este usario'}), 404
-#     print(f"Carrito ID: {carrito.carrito_id}")
-
-#     if not items_en_carrito:
-#         print("No hay articulos en el carrito")
-#         return jsonify({'error': 'No hay articulos en el carrito'}), 422
-
-#     items = []
-#     total_facturacion = 0
-
-#     for item in items_en_carrito:
-#         print(f"Procesando articulo: {item}")
-
-#         if 'producto_id' not in item or 'cantidad' not in item:
-#             print("Datos de articulo invalidos")
-#             return jsonify({'error': 'Datos de articulo invalidos. Debe contener producto_id y una cantidad'}), 422
-        
-#         if item['cantidad'] <= 0:
-#             print("La cantidad debe ser mayor a 0")
-#             return jsonify({'error': 'La cantidad debe ser mayor a cero'}), 422
-
-#         producto = Producto.query.get(item['producto_id'])
-        
-#         if producto:
-#             items.append({
-#                 'price': producto.precio_stripe_id,
-#                 'quantity': item['cantidad'],
-#             }) 
-
-#             subtotal = producto.precio * item['cantidad']
-#             total_facturacion += subtotal     
-#             print(f"{producto.nombre} agregado al checkout con {item['cantidad']} y precio de {producto.precio} (Subtotal: {subtotal})")     
-#         else:
-#             print(f"El producto con id {item['producto_id']} no existe.")
-#             return jsonify({'error': f'El producto con id {item["producto_id"]} no existe.'}), 422
-    
-#     print(f"Precio total del checkout: {total_facturacion}")
-    
-#     try:
-#         checkout_session = stripe.checkout.Session.create(
-#             payment_method_types=['card', 'sepa_debit'],
-#             line_items=items,
-#             mode='payment',
-#             success_url=os.getenv("FRONTEND_URL") + '?success=true',
-#             cancel_url=os.getenv("FRONTEND_URL") + '?canceled=true',
-#         )
-
-#         print(f"Sesion de checkout creada: {checkout_session['id']}")
-#         return jsonify({'url': checkout_session.url})  
-
-#     except Exception as e:
-#         print(f"Error creating checkout session: {e}")
-#         return jsonify({'error': 'Error al crear la sesión de pago'}), 500
-
-
+# POST - Crear Sesión de Pago - Stripe
 @api.route('/checkout', methods=['POST'])
 def create_payment():
     try:
@@ -401,7 +335,6 @@ def create_payment():
             automatic_payment_methods={
                 'enabled': True
             }
-
         )
         return jsonify({
             'clientSecret': intent['client_secret']
