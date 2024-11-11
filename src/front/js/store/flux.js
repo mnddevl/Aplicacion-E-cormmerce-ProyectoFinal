@@ -237,7 +237,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${userToken}`,  
                         },
-                        //body: JSON.stringify(productData),
+                        
                         body: JSON.stringify({
                             producto_id: selectedProduct.id,
                             cantidad: selectedProduct.cantidad
@@ -277,7 +277,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error en get_productos:", error);
                 }
-            }         
+            },             
         }
     };
 };
