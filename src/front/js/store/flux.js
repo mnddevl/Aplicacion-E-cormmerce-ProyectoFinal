@@ -15,6 +15,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             usuario: [],
             productos: [],
             carrito: [],
+            carrito_id: null,
         },
         actions: {
             
@@ -249,6 +250,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             
                     if (response.ok) {
                         setStore({ carrito: [...store.carrito, selectedProduct] });
+                        setStore({carrito_id: data.carrito_id})
                     }
                 } catch (error) {
                     console.error("Error adding to cart:", error);
@@ -277,7 +279,41 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error en get_productos:", error);
                 }
-            },             
+            },
+            //UPDATE CANTIDAD PRODUCTOS EN CARRITO
+            handleQuantityChange : async (carritoId, productoId, newCantidad) => {
+                try {
+                    const token = sessionStorage.getItem("token");
+                    const payload = {
+                        carrito_id: carritoId,
+                        producto_id: productoId,
+                        cantidad: newCantidad,
+                    };
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/carrito/update_quantity`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Falló la actualización de la cantidad');
+                    }
+                    const data = await response.json();
+                    return {
+                        type: 'UPDATE_QUANTITY_SUCCESS',
+                        payload: { productoId, newCantidad }
+                    };
+                } catch (error) {
+                    console.error("Error al actualizar la cantidad:", error);
+                    return {
+                        type: 'UPDATE_QUANTITY_FAILURE',
+                        payload: error.message
+                    };
+                }
+            }         
         }
     };
 };

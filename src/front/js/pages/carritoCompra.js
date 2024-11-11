@@ -9,7 +9,6 @@ const CarritoCompra = () => {
     const navigate = useNavigate();
     const { store, actions } = useContext(Context);
 
-
     useEffect(() => {
         const fetchCartItems = async () => {
             await actions.get_carrito(); 
@@ -23,13 +22,17 @@ const CarritoCompra = () => {
         setProductos([...store.carrito]); 
     }, [store.carrito]);
 
-    const handleQuantityChange = (id, quantity) => {
-        actions.updateItemQuantity(id, quantity);
+    const handleQuantityChange = (id_carrito, id, quantity) => {
+        actions.updateItemQuantity(id_carrito, id, quantity);
     };
 
-    const calculateTotal = () => {
-        return productos.reduce((total, item) => total + item.producto.precio * item.cantidad, 0).toFixed(2);
+   const calculateTotal = () => {
+        return store.carrito.reduce((total, item) => total + item.producto.precio * item.cantidad, 0).toFixed(2);
     };
+
+    useEffect(() => {
+        console.log(productos)
+    }, [productos]);
 
     return (
         <div className="carritoCompra">
@@ -53,9 +56,9 @@ const CarritoCompra = () => {
                                         <p>{item.producto.region}</p>
                                     </div>
                                     <div className="item-controls">
-                                        <button onClick={() => handleQuantityChange(item.producto.id, item.quantity - 1)}>-</button>
-                                        <span>{item.quantity}</span>
-                                        <button onClick={() => handleQuantityChange(item.producto.id, item.quantity + 1)}>+</button>
+                                        <button onClick={() => actions.handleQuantityChange(store.carrito_id, item.producto.id, item.cantidad - 1)}>-</button>
+                                        <span>{item.cantidad}</span>
+                                        <button onClick={() => actions.handleQuantityChange(store.carrito_id, item.producto.id, item.cantidad + 1)}>+</button>
                                     </div>
                                     <div className="item-price">
                                         <p>{(item.producto.precio * item.cantidad).toFixed(2)}€</p>
