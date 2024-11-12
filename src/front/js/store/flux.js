@@ -96,12 +96,12 @@ const getState = ({ getStore, getActions, setStore }) => {
             //CONFIRMAR CAMBIOS USUARIO
             submitUsuario: async (form) => {
                 const { usuario } = getStore();
-                const error = getActions().validarPassword(form.newPassword, form.confirmNewPassword);
+                //const error = getActions().validarPassword(form.newPassword, form.confirmNewPassword);
 
-                if (error) {
-                    alert(error);
-                    return;
-                }
+                // if (error) {
+                //     alert(error);
+                //     return;
+                // }
                 const updatedUserData = {
                     ...form
                 };
@@ -240,7 +240,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             
                     if (response.ok) {
                         setStore({ carrito: [...store.carrito, selectedProduct] });
-                        setStore({carrito_id: data.carrito_id})
+                        sessionStorage.setItem("carrito_id", data.carrito_id)
                     }
                 } catch (error) {
                     console.error("Error adding to cart:", error);
@@ -287,15 +287,17 @@ const getState = ({ getStore, getActions, setStore }) => {
                         },
                         body: JSON.stringify(payload)
                     });
-                    if (!response.ok) {
+                    if (response.ok) {
+                        const data = await response.json();
+                        getActions().get_carrito()
+                        return {
+                            type: 'UPDATE_QUANTITY_SUCCESS',
+                            payload: { productoId, newCantidad }
+                        };
+                    }
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'Falló la actualización de la cantidad');
-                    }
-                    const data = await response.json();
-                    return {
-                        type: 'UPDATE_QUANTITY_SUCCESS',
-                        payload: { productoId, newCantidad }
-                    };
+                   
                 } catch (error) {
                     console.error("Error al actualizar la cantidad:", error);
                     return {

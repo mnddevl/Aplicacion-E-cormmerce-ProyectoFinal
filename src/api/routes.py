@@ -12,7 +12,8 @@ import stripe
 import datetime
 
 api = Blueprint('api', __name__)
-stripe.api_key = 'sk_test_51Q2r2N06zQfFcColuDlGYU5ASql5Q9fsnjKX4vzwx8GFlbZTKVCXexfKbvEkqde8LObURT21VGVn4heuu7DM1LLt00oVGSM3Zl'
+# secret key
+stripe.api_key = 'sk_test_51QAvoQK7BJC5w4F5ForFM6XfFwoYLLhx3TGsxm90yV6xaJP1F6XBl52emb9zX0fcEs97qCvgM9KR285f2AadzJIL00KJ6NHoIO'
 
 # Allow CORS requests to this API
 CORS(api)
@@ -271,25 +272,21 @@ def agregar_al_carrito():
 
 # GET - Obtener los productos en el CarritoDeCompras del usuario actual
 @api.route('/carrito/productos', methods=['GET'])
-@jwt_required() 
+@jwt_required()
 def obtener_productos_carrito():
     current_user = get_jwt_identity()
-
     # Buscar el carrito del usuario autenticado
     carrito = CarritoDeCompra.query.filter_by(usuario_id=current_user).first()
-
     if not carrito or not carrito.productos:
         return jsonify({"mensaje": "El carrito está vacío"}), 200
-
-    # Obtener los productos en el carrito
+    # Ordenar los productos en el carrito por el campo `id` de `CarritoProducto`
     productos_en_carrito = [
         {
             "producto": item.producto.serialize(),
-            "cantidad": item.cantidad 
+            "cantidad": item.cantidad
         }
-        for item in carrito.productos
+        for item in sorted(carrito.productos, key=lambda x: x.id)  # Ordena por `id` del objeto `CarritoProducto`
     ]
-
     return jsonify({"productos": productos_en_carrito}), 200
     
 # DELETE - Eliminar productos del CarritoDeCompras  
