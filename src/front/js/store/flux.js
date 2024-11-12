@@ -1,14 +1,4 @@
 const getState = ({ getStore, getActions, setStore }) => {
-    //let listeners = [];
-
-    // const notify = () => {
-    //     listeners.forEach(listener => listener());
-    // };
-
-    // const setStoreWithNotification = (updatedStore) => {
-    //     setStore(updatedStore);
-    //     notify();
-    // };
 
     return {
         store: {
