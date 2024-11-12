@@ -72,9 +72,6 @@ const Navbar = () => {
                             <Link to="/carritoCompra" className="btn cart-btn">
                                 <FontAwesomeIcon icon={faShoppingCart} /> Carrito
                             </Link>
-                            <div className="dropdown-content">
-                                <p>Carrito vacío</p>
-                            </div>
                         </div>
 
                         {!isAuthenticated && (

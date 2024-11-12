@@ -12,7 +12,8 @@ import stripe
 import datetime
 
 api = Blueprint('api', __name__)
-stripe.api_key = 'sk_test_51Q2r2N06zQfFcColuDlGYU5ASql5Q9fsnjKX4vzwx8GFlbZTKVCXexfKbvEkqde8LObURT21VGVn4heuu7DM1LLt00oVGSM3Zl'
+# secret key
+stripe.api_key = 'sk_test_51QAvoQK7BJC5w4F5ForFM6XfFwoYLLhx3TGsxm90yV6xaJP1F6XBl52emb9zX0fcEs97qCvgM9KR285f2AadzJIL00KJ6NHoIO'
 
 # Allow CORS requests to this API
 CORS(api)
