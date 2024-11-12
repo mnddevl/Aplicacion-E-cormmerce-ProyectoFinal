@@ -12,7 +12,7 @@ import stripe
 import datetime
 
 api = Blueprint('api', __name__)
-stripe.api_key = 'sk_test_51QAvoQK7BJC5w4F5ForFM6XfFwoYLLhx3TGsxm90yV6xaJP1F6XBl52emb9zX0fcEs97qCvgM9KR285f2AadzJIL00KJ6NHoIO'
+stripe.api_key = 'sk_test_51Q2r2N06zQfFcColuDlGYU5ASql5Q9fsnjKX4vzwx8GFlbZTKVCXexfKbvEkqde8LObURT21VGVn4heuu7DM1LLt00oVGSM3Zl'
 
 # Allow CORS requests to this API
 CORS(api)
@@ -336,12 +336,17 @@ def create_payment():
                 'enabled': True
             }
         )
+        client_secret = intent['client_secret']
+        print("Generated client_secret:", client_secret)
+        print("Amount:", data['amount'], "Currency:", data['currency'])
         return jsonify({
             'clientSecret': intent['client_secret']
         })
     except Exception as e:
+        print("Error creating PaymentIntent:", str(e))
         return jsonify({'success': False, 'error': str(e)})
 
+# PUT - Actualizar el estado del Pedido
 @api.route('/carrito/update_quantity', methods=['PUT'])
 def update_quantity():
     try:
