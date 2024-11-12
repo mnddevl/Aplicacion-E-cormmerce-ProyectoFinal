@@ -8,6 +8,7 @@ const CarritoCompra = () => {
     const [productos, setProductos] = useState([]);
     const navigate = useNavigate();
     const { store, actions } = useContext(Context);
+    const carrito_id = sessionStorage.getItem("carrito_id")
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -31,8 +32,8 @@ const CarritoCompra = () => {
     };
 
     useEffect(() => {
-        console.log(productos)
-    }, [productos]);
+        console.log(carrito_id)
+    }, [carrito_id]);
 
     return (
         <div className="carritoCompra">
@@ -56,9 +57,9 @@ const CarritoCompra = () => {
                                         <p>{item.producto.region}</p>
                                     </div>
                                     <div className="item-controls">
-                                        <button onClick={() => actions.handleQuantityChange(store.carrito_id, item.producto.id, item.cantidad - 1)}>-</button>
+                                        <button onClick={() => actions.handleQuantityChange(carrito_id, item.producto.id, item.cantidad - 1)}>-</button>
                                         <span>{item.cantidad}</span>
-                                        <button onClick={() => actions.handleQuantityChange(store.carrito_id, item.producto.id, item.cantidad + 1)}>+</button>
+                                        <button onClick={() => actions.handleQuantityChange(carrito_id, item.producto.id, item.cantidad + 1)}>+</button>
                                     </div>
                                     <div className="item-price">
                                         <p>{(item.producto.precio * item.cantidad).toFixed(2)}€</p>
