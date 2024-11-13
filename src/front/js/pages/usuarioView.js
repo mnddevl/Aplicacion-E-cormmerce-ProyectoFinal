@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Context } from '../store/appContext';
 import '../../styles/usuarioView.css';
+import swal from "sweetalert";
 
 const UsuarioView = () => {
     const { store, actions } = useContext(Context);
@@ -47,11 +48,29 @@ const UsuarioView = () => {
 
         actions.submitUsuario(form)
             .then(() => {
-                alert("Los datos han sido actualizados.");
+                swal({
+                    title: "Actualización exitosa",
+                    text: "¡Datos guardados correctamente!",
+                    icon: "success",
+                    button: {
+                        text: "Cerrar",
+                        className: "my-blue-button",
+                        className: "custom-alert"
+                    },
+                })
             })
             .catch((error) => {
                 console.error('Error en la solicitud:', error);
-                alert('Error al actualizar los datos.');
+                swal({
+                    title: "Error",
+                    text: "¡Error al actualizar los datos.!",
+                    icon: "success",
+                    button: {
+                        text: "Cerrar",
+                        className: "my-blue-button",
+                        className: "custom-alert"
+                    },
+                })
             })
             .finally(() => {
                 setIsSubmitting(false);
