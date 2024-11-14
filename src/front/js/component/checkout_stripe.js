@@ -13,8 +13,7 @@ export const CheckoutForm = () => {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('card');
     const carritoTotal = (store.carrito.reduce((total, item) => total + item.producto.precio * item.cantidad, 0)).toFixed(2);
-    const navigate = useNavigate(); 
-    
+
     // Imrpime el clientSecret en la consola
     useEffect(() => {
         console.log("Client Secret:", clientSecret);
