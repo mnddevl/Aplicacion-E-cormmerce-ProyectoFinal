@@ -240,7 +240,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             
                     if (response.ok) {
                         setStore({ carrito: [...store.carrito, selectedProduct] });
-                        sessionStorage.setItem("carrito_id", data.carrito_id)
+                        localStorage.setItem("carrito_id", data.carrito_id)
                     }
                 } catch (error) {
                     console.error("Error adding to cart:", error);

@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Context } from '../store/appContext';
 import '../../styles/usuarioView.css';
 import swal from "sweetalert";
-import swal from "sweetalert";
 
 const UsuarioView = () => {
     const { store, actions } = useContext(Context);

@@ -8,7 +8,7 @@ const CarritoCompra = () => {
     const [productos, setProductos] = useState([]);
     const navigate = useNavigate();
     const { store, actions } = useContext(Context);
-    const carrito_id = sessionStorage.getItem("carrito_id")
+    const carrito_id = localStorage.getItem("carrito_id")
 
     useEffect(() => {
         const fetchCartItems = async () => {
