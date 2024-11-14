@@ -49,16 +49,16 @@ const UsuarioView = () => {
         actions.submitUsuario(form)
             .then(() => {
                 swal({
-                    title: "Actualización exitosa",
-                    text: "¡Datos guardados correctamente!",
-                    icon: "success",
-                    button: {
-                        text: "Cerrar",
-                        className: "my-blue-button",
-                        className: "custom-alert"
-                    },
-                })
+                title: "Guardado con éxito",
+                text: "¡Los datos han sido actualizados!",
+                icon: "success",
+                button: {
+                    text: "Cerrar",
+                    className: "my-blue-button",
+                    className: "custom-alert"
+                }
             })
+        })
             .catch((error) => {
                 console.error('Error en la solicitud:', error);
                 swal({
