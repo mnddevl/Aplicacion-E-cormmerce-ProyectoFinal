@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { CardElement, useStripe, useElements, IbanElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
 import { Context } from '../store/appContext';
+import { useNavigate } from "react-router-dom"; 
+import swal from "sweetalert";
+import "../../styles/checkout_stripe.css";
 
 export const CheckoutForm = () => {
     const { store } = useContext(Context);
@@ -10,7 +13,8 @@ export const CheckoutForm = () => {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('card');
     const carritoTotal = (store.carrito.reduce((total, item) => total + item.producto.precio * item.cantidad, 0)).toFixed(2);
-
+    const navigate = useNavigate(); 
+    
     // Imrpime el clientSecret en la consola
     useEffect(() => {
         console.log("Client Secret:", clientSecret);
@@ -76,7 +80,19 @@ export const CheckoutForm = () => {
             if (result.error) {
                 console.error("Payment Error:", result.error);
             } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-                console.log("El pago se ha realizado con éxito");
+                swal({
+                    title: "Pagado",
+                    text: "¡El pago se ha realizado con éxito!",
+                    icon: "success",
+                    button: {
+                        text: "Cerrar",
+                        className: "my-blue-button",
+                        className: "custom-alert"
+                    }
+                })
+                .then(() => {
+                    navigate('/');
+                });
             } else {
                 console.log("Hubo un error al procesar el pago");
             }
